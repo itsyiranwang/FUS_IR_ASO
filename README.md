@@ -13,14 +13,13 @@ Code and data relative to:
 3. ALS progression:  [postmortem-analysis](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis)
 
 
+**GEO Accession**:   
+GEO Accession to raw (fastq) and processed (bigwig) data used in the study:
+
 
 **TDP-43 iCLIP**: 
-TDP-43 iCLIP data generated in this study in hiPSC-Motor Neurons can be access here:   
-GEO Accession to original fastq files   
-
-De-multiplexed fastq: 
-`mn_d7_ctrl_6,/camp/home/manferg/lusgm/projects/nf/clip/tdp43/motor_neurons/mn_l7/files/demux/u_plexed_merged/ultraplex_demux_5bc_NNNNGAATANNNNNN_3bc_NNNCCAGNNN.fastq.gz`
-
+TDP-43 iCLIP data generated in this study in hiPSC-Motor Neurons can be accessed here:   
+ 
 TDP-43 iCLIP data were processed and analysed using the [nf-core-clipseq pipeline v1.0.0](https://nf-co.re/clipseq/1.0.0/)  
 - sample sheet provided to nfcore-clipseq: [mn_sample_sheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/nfcore_clipseq/mn_sample_sheet.csv)    
 - script to run nfcore-clipseq: [run.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/nfcore_clipseq/run.sh)
@@ -36,3 +35,11 @@ TDP-43 iCLIP data were processed and analysed using the [nf-core-clipseq pipelin
 - script to run trackplot: [trackplot_fus.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/trackplot/trackplot_fus.sh)   
 
 _See relative study accession codes to access previously published TDP-43 iCLIP data (fastq files)._ 
+
+**Riboseq:** 
+- riboseq input: [riboseq_HEK_samplesheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/riboseq/riboseq_HEK_samplesheet.csv)  
+- riboseq pipeline script: [riboseq_HEK_pipeline.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/riboseq/riboseq_HEK_pipeline.sh)  
+
+**ALS progression:** 
+- Postmortem analysis input: [fus_7_ratio_thoracic.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/postmortem-analysis/input_files/fus_7_ratio_thoracic.csv)  
+- Postmortem analysis scripts: [scripts](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis/scripts)  
