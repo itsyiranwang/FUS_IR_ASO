@@ -36,8 +36,9 @@ TDP-43 iCLIP data were processed and analysed using the [**nf-core-clipseq pipel
 - script to run nfcore-clipseq pipeline: [run.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/nfcore_clipseq/run.sh)
 
 **iiCLIP TDP-43 data visualisation**:   
-- To reduce noise and enhance signal clarity, the identified crosslinks were subsequently processed using [clip-viz](https://github.com/amchakra/clip-viz) _developed by Dr.Anob Chakrabarti _
-sample sheet provided to run clip-viz: samplesheet.csv
+- To reduce noise and enhance signal clarity, the identified crosslinks were subsequently processed using [clip-viz](https://github.com/amchakra/clip-viz)  _developed by Dr.Anob Chakrabarti _
+
+sample sheet provided to run clip-viz: [samplesheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/clip_viz/samplesheet.csv) 
 script to run clip-viz: clip-viz.sh
 
 - Visualisation with [trackplot (v0.4.0)](https://trackplot.readthedocs.io/en/latest/):    
