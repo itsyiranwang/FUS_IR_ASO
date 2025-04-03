@@ -15,12 +15,8 @@ Code and data relative to:
 
 
 **TDP-43 iCLIP**: 
-TDP-43 iCLIP data generated in this study in hiPSCs Motor Neurons can be access here:   
+TDP-43 iCLIP data generated in this study in hiPSC-Motor Neurons can be access here:   
 GEO Accession to original fastq files   
-
-(pre-demultiplexing) samples run across two different lanes:
-`/camp/lab/patanir/home/users/manferg/manferg2/projects/nf/clip/tdp43/motor_neurons/mn_l7/files/demux/MAN4617A1_S4_L001_R1_001.fastq.gz`
-`/camp/lab/patanir/home/users/manferg/manferg2/projects/nf/clip/tdp43/motor_neurons/mn_l7/files/demux/MAN4617A1_S4_L002_R1_001.fastq.gz`
 
 De-multiplexed fastq: 
 `mn_d7_ctrl_6,/camp/home/manferg/lusgm/projects/nf/clip/tdp43/motor_neurons/mn_l7/files/demux/u_plexed_merged/ultraplex_demux_5bc_NNNNGAATANNNNNN_3bc_NNNCCAGNNN.fastq.gz`
