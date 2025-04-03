@@ -16,7 +16,8 @@ Amyotrophic lateral sclerosis (ALS) is a devastating condition characterised by 
 
 
 1. TDP-43 iiCLIP:  [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
-2. Riboseq: 
+2. Riboseq:
+3. ALS progression: 
 
 
 
