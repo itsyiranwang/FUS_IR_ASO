@@ -1,11 +1,18 @@
 # FUS_IR_ASO
 
 Code and data relative to: 
-"Targeting pathogenic FUS intron retention for amyotrophic lateral sclerosis treatment", Y.Wang et al. 2025 
 
-** Project summary/abstract**: 
+"Targeting pathogenic FUS intron retention for amyotrophic lateral sclerosis treatment", Y.Wang et al. 2025    
 
-** TDP-43 CLIP data **: 
+
+** Project summary/abstract**:     
+
+
+
+**Data Sets:**
+
+
+
 
 TDP-43 iCLIP data generated in this study in hiPSCs Motor Neurons can be access here: GEO Accession to original fastq files 
 
