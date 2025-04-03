@@ -28,13 +28,14 @@ GEO Accession to original fastq files
 De-multiplexed fastq: 
 `mn_d7_ctrl_6,/camp/home/manferg/lusgm/projects/nf/clip/tdp43/motor_neurons/mn_l7/files/demux/u_plexed_merged/ultraplex_demux_5bc_NNNNGAATANNNNNN_3bc_NNNCCAGNNN.fastq.gz`
 
-TDP-43 iCLIP data were processed and analysed using the **nf-core-clipseq pipeline** _v1.0.0_.(https://nf-co.re/clipseq/1.0.0/) 
+TDP-43 iCLIP data were processed and analysed using the [**nf-core-clipseq pipeline**_v1.0.0](https://nf-co.re/clipseq/1.0.0/) 
 - sample sheet provided to nfcore-clipseq pipeline: [mn_sample_sheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/nfcore_clipseq/mn_sample_sheet.csv)    
 - script to run nfcore-clipseq pipeline: [run.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/run.sh)
 
-Clipplot-viz: (CHECK WITH NOBBY IF CODE ALREADY PUBLIC )
-samplesheet.csv: sample sheet provided to run clip-viz
-clip-viz.sh: script to run nfcore-clipseq clip-viz
+iiCLIP TDP-43 data visualisation: 
+- Clipplot-viz: (CHECK WITH NOBBY IF CODE ALREADY PUBLIC )
+sample sheet provided to run clip-viz: samplesheet.csv
+script to run clip-viz: clip-viz.sh
 
 Visualisation:
 bigwig_F.tsv: input tsv
