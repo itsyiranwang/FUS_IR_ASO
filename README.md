@@ -12,6 +12,8 @@ Code and data relative to:
 **Data Sets:**
 
 
+1. TDP-43 iiCLIP [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
+2. Riboseq
 
 
 TDP-43 iCLIP data generated in this study in hiPSCs Motor Neurons can be access here: GEO Accession to original fastq files 
