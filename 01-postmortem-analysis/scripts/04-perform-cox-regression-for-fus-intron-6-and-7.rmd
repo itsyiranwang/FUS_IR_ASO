@@ -1,0 +1,475 @@
+---
+title:Microsatellite summary analysis
+output:pdf_document
+---
+
+
+### Main questions
+
+Investigate the survival probability of patients using ERAP2 expression
+
+
+### 1.0 Package requirements
+
+- change to current working directory `/nemo/lab/patanir/home/users/palk/Projects/025-yiran-wang-postmortem-collab/analysis/01-postmortem-analysis` and include required packages 
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+
+setwd("/nemo/lab/patanir/home/users/palk/Projects/025-yiran-wang-postmortem-collab/analysis/")
+require("HiCBricks")
+require("GenomicRanges")
+require("stringr")
+# require("Biostrings")
+# require("rtracklayer")
+# require("GenomeInfoDb")
+# require("GenomicFeatures")
+require("ggplot2")
+library(rlang)
+library(riskRegression)
+library(survival)
+library(pammtools)
+library(gganimate)
+library(transformr)
+library(plotly)
+library(reshape2)
+library(knitr)
+library(rmarkdown)
+require(coxphf)
+require("contsurvplot")
+require("RColorBrewer")
+require("patchwork")
+require("scales")
+
+
+```
+
+### 2.0 Include experiment matrix
+
+- Let's first import the counts.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+
+analysis_path <- "01-postmortem-analysis"
+save_dir <- file.path(analysis_path, "rdata_files")
+plot_dir <- file.path(analysis_path, "plots")
+input_dir <- file.path(analysis_path, "input_files")
+output_dir <- file.path(analysis_path, "output_files")
+
+dir.create(save_dir, recursive = T)
+dir.create(plot_dir, recursive = T)
+dir.create(input_dir, recursive = T)
+dir.create(output_dir, recursive = T)
+
+```
+
+### 3.0 Imports
+
+- Load penetrance data
+
+```{r}
+
+patient_count_df <- readRDS(file.path(save_dir, "02-summarised-counts-for-patients.rds"))
+patient_count_df <- patient_count_df[patient_count_df$condition != "ftd",]
+
+```
+
+### Analysis
+
+- Prepare data for brain and spinal cord age at death
+
+
+```{r}
+
+
+score_patient <- function(aplp2, chid1, agpat4){
+    a <- abs(aplp2 - chid1)
+    b <- abs(aplp2 - agpat4)
+    c <- abs(chid1 - agpat4)
+    s <- (a + b + c)/2
+    area <- sqrt( s * (s - a) * (s - b) * (s - c) )
+    area[is.na(area)] <- 0
+    return(area)
+}
+
+
+patient_count_df$type <- factor(patient_count_df$type, levels = c("control", "c9orf72-ALS", "other_mutation-fALS", "sporadic"))
+patient_count_df$type_group <- as.character(patient_count_df$type)
+patient_count_df$type_group[patient_count_df$type %in% c("other_mutation-fALS", "sporadic")] <- "sporadic+other_fALS"
+patient_count_df$tissue_group <- "spinal_cord"
+patient_count_df$tissue_group[patient_count_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
+
+patient_surv_df <- do.call(rbind, lapply(split(patient_count_df, paste(patient_count_df$subject_id, patient_count_df$tissue)), function(temp_df){
+    message(unique(temp_df$subject_id))
+    data.frame(subject_id = unique(temp_df$subject_id),
+        # tissue_group = unique(temp_df$tissue_group),
+        tissue = unique(temp_df$tissue),
+        age_at_onset = unique(temp_df$age_at_symptom_onset),
+        age_at_death = unique(temp_df$age_at_death),
+        disease_duration_in_months = unique(temp_df$disease_duration_in_months),
+        sex_genotype = unique(temp_df$sex_genotype),
+        mnd_with_ftd = unique(temp_df$mnd_with_ftd),
+        condition = unique(temp_df$condition),
+        mnd_with_dementia = unique(temp_df$mnd_with_dementia),
+        type_group = unique(temp_df$type_group),
+        stmn2_expr = mean(temp_df$stmn2_expr),
+        unc13a_expr = mean(temp_df$unc13a_expr),
+        fus_expr = mean(temp_df$fus_expr),
+        kcnq2_expr = mean(temp_df$kcnq2_expr),
+        sort1_expr = mean(temp_df$sort1_expr),
+        neat1_expr = mean(temp_df$neat1_expr),
+        unc13a_128bp = mean(temp_df$unc13a_128bp),
+        fus_6 = mean(temp_df$fus_6),
+        fus_7 = mean(temp_df$fus_7),
+        kcnq2_5 = mean(temp_df$kcnq2_5),
+        neat1_long = mean(temp_df$neat1_long),
+        sort1_17b = mean(temp_df$sort1_17b),
+        unc13a_128bp_ratio = mean(temp_df$unc13a_128bp_ratio),
+        fus_6_ratio = mean(temp_df$fus_6_ratio),
+        fus_7_ratio = mean(temp_df$fus_7_ratio),
+        kcnq2_5_ratio = mean(temp_df$kcnq2_5_ratio),
+        neat1_long_ratio = mean(temp_df$neat1_long_ratio),
+        sort1_17b_ratio = mean(temp_df$sort1_17b_ratio))
+}))
+
+patient_surv_df$age_at_death[patient_surv_df$age_at_death == "90 or Older"] <- "90"
+patient_surv_df$age_at_death <- as.numeric(patient_surv_df$age_at_death)
+patient_surv_df$age_at_onset <- as.numeric(patient_surv_df$age_at_onset)
+patient_surv_df$disease_duration <- as.numeric(patient_surv_df$disease_duration_in_months)
+# patient_surv_df$score <- score_patient(patient_surv_df$aplp2_expr, 
+#     patient_surv_df$chid1_expr, patient_surv_df$agpat4_expr)
+
+```
+
+- Perform modelling of the age of onset survival function using aplp2 expression
+
+```{r}
+
+als_surv_df <- patient_surv_df[!(patient_surv_df$condition %in% c("ctrl")),]
+als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+als_surv_df$status <- 0
+als_surv_df$status[als_surv_df$condition %in% c("als", "als+ftd", "ftd")] <- 1
+
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+
+vars <- c("stmn2_expr", "unc13a_expr", "fus_expr", "kcnq2_expr", "sort1_expr", "neat1_expr",
+    "fus_6", "fus_7", "kcnq2_5", "neat1_long", "sort1_17b",
+    "unc13a_128bp_ratio", "fus_6_ratio", "fus_7_ratio", "kcnq2_5_ratio", "neat1_long_ratio",
+    "sort1_17b_ratio")
+
+significance_df <- do.call(rbind, lapply(vars, function(y){
+    message(y)
+    als_surv_df$current_var <- als_surv_df[,y]
+    onset_vs_expr_model_output <- lapply(unique(als_surv_df$tissue), function(z){
+        model <- coxph(Surv(age_at_death, status) ~ sex_genotype + current_var, 
+            data=als_surv_df[als_surv_df$tissue == z,], x=TRUE)
+        model
+    })
+    names(onset_vs_expr_model_output) <- unique(als_surv_df$tissue)
+
+
+    plot_list <- lapply(names(onset_vs_expr_model_output), function(z){
+        current_model <- onset_vs_expr_model_output[[z]]
+        current_df <- als_surv_df[als_surv_df$tissue == z,]
+        als_quantiles <- quantile(current_df$current_var, c(0.1, 0.5, 0.90))
+        the_plot <- plot_surv_lines(time = "age_at_death",
+                        status = "status",
+                        variable = "current_var",
+                        data = current_df,
+                        model = current_model,
+                        cif = T,
+                        custom_color = RColorBrewer::brewer.pal(n = 3, name = "Reds"),
+                        horizon=als_quantiles) + ggtitle(z) + theme(legend.position = "none")
+    })
+
+    names(plot_list) <- names(onset_vs_expr_model_output)
+
+    all_surv_plots <- wrap_plots(plot_list, nrow = 1, ncol = length(plot_list))
+
+    thresholds_plot_list <- lapply(names(onset_vs_expr_model_output), function(z){
+        current_df <- als_surv_df[als_surv_df$tissue == z,]
+        als_quantiles <- quantile(current_df$current_var, c(0.1, 0.5, 0.90))
+
+        label_df <- data.frame(current_var = als_quantiles, group = factor(names(als_quantiles), levels = c("10%", "50%", "90%")))
+
+        ThePlot <- ggplot(current_df, aes(x = current_var))
+        ThePlot <- ThePlot + geom_density(fill = "#F6F4F3", colour = "#000000")
+        ThePlot <- ThePlot + geom_vline(data = label_df, aes(xintercept = current_var, colour = group))
+        ThePlot <- ThePlot + scale_x_continuous(y)
+        ThePlot <- ThePlot + scale_y_continuous("density")
+        ThePlot <- ThePlot + scale_colour_manual("Condition colour", values = RColorBrewer::brewer.pal(n = 3, name = "Reds"))
+        ThePlot <- ThePlot + theme_bw()
+        ThePlot <- ThePlot + current_theme
+    })
+
+    all_surv_threshold_plots <- wrap_plots(thresholds_plot_list, nrow = 1, ncol = length(thresholds_plot_list))
+
+    all_plots <- all_surv_plots / all_surv_threshold_plots
+
+    ggsave(width = 15, height = 5, file = file.path(plot_dir, paste("02-01",y,"cumulative-incidence-vs-age-at-death.pdf", sep = "-")), all_plots)
+
+    coefficients <- do.call(rbind, lapply(onset_vs_expr_model_output, function(x){
+            summary(x)$coefficients["current_var",]
+        }))
+    data.frame(var = y, 
+        tissue = rownames(coefficients),
+        hr = coefficients[,2],
+        pval = coefficients[,5])
+}))
+rownames(significance_df) <- NULL
+significance_df[significance_df$pval < 0.05,]
+
+#                   var               tissue           hr         pval
+# 7         unc13a_expr               Cortex 1.019553e+00 0.0098524738
+# 13           fus_expr               Cortex 1.020322e+00 0.0147682918
+# 14           fus_expr         Cortex_Motor 1.019880e+00 0.0290691556
+# 41              fus_6           Cerebellum 9.455574e-01 0.0067717438
+# 47              fus_7           Cerebellum 9.505894e-01 0.0104468857
+# 49            kcnq2_5               Cortex 1.215769e+00 0.0424056201
+# 63          sort1_17b Spinal_Cord_Cervical 8.879481e-01 0.0405710682
+# 64          sort1_17b   Spinal_Cord_Lumbar 8.566999e-01 0.0095298221
+# 71 unc13a_128bp_ratio           Cerebellum 8.239354e-26 0.0084309952
+# 76        fus_6_ratio   Spinal_Cord_Lumbar 1.355199e-02 0.0308077936
+# 77        fus_6_ratio           Cerebellum 3.184456e-03 0.0024223111
+# 83        fus_7_ratio           Cerebellum 1.549955e-02 0.0107743452
+# 85      kcnq2_5_ratio               Cortex 5.459963e+52 0.0008566947
+# 87      kcnq2_5_ratio Spinal_Cord_Cervical 3.957573e+14 0.0002164684
+# 88      kcnq2_5_ratio   Spinal_Cord_Lumbar 8.301131e+15 0.0028063290
+# 89      kcnq2_5_ratio           Cerebellum 1.224789e+34 0.0077168495
+# 90      kcnq2_5_ratio Spinal_Cord_Thoracic 1.325709e+29 0.0286685489
+
+
+
+```
+
+- Perform modelling of the survival function using gene expression and disease duration
+
+
+```{r}
+
+patient_count_df$type <- factor(patient_count_df$type, levels = c("control", "c9orf72-ALS", "other_mutation-fALS", "sporadic"))
+patient_count_df$type_group <- as.character(patient_count_df$type)
+patient_count_df$type_group[patient_count_df$type %in% c("other_mutation-fALS", "sporadic")] <- "sporadic+other_fALS"
+patient_count_df$tissue_group <- "spinal_cord"
+patient_count_df$tissue_group[patient_count_df$tissue %in% c("Cortex", "Cortex_Motor", "Cerebellum")] <- "brain"
+
+patient_surv_df <- do.call(rbind, lapply(split(patient_count_df, paste(patient_count_df$subject_id, patient_count_df$tissue)), function(temp_df){
+    message(unique(temp_df$subject_id))
+    data.frame(subject_id = unique(temp_df$subject_id),
+        # tissue_group = unique(temp_df$tissue_group),
+        tissue = unique(temp_df$tissue),
+        age_at_onset = unique(temp_df$age_at_symptom_onset),
+        age_at_death = unique(temp_df$age_at_death),
+        disease_duration_in_months = unique(temp_df$disease_duration_in_months),
+        sex_genotype = unique(temp_df$sex_genotype),
+        mnd_with_ftd = unique(temp_df$mnd_with_ftd),
+        condition = unique(temp_df$condition),
+        mnd_with_dementia = unique(temp_df$mnd_with_dementia),
+        type_group = unique(temp_df$type_group),
+        stmn2_expr = mean(temp_df$stmn2_expr),
+        unc13a_expr = mean(temp_df$unc13a_expr),
+        fus_expr = mean(temp_df$fus_expr),
+        kcnq2_expr = mean(temp_df$kcnq2_expr),
+        sort1_expr = mean(temp_df$sort1_expr),
+        neat1_expr = mean(temp_df$neat1_expr),
+        fus_6 = mean(temp_df$fus_6),
+        fus_7 = mean(temp_df$fus_7),
+        kcnq2_5 = mean(temp_df$kcnq2_5),
+        neat1_long = mean(temp_df$neat1_long),
+        sort1_17b = mean(temp_df$sort1_17b),
+        fus_6_ratio = mean(temp_df$fus_6_ratio),
+        fus_7_ratio = mean(temp_df$fus_7_ratio),
+        kcnq2_5_ratio = mean(temp_df$kcnq2_5_ratio),
+        neat1_long_ratio = mean(temp_df$neat1_long_ratio),
+        sort1_17b_ratio = mean(temp_df$sort1_17b_ratio))
+}))
+
+patient_surv_df$age_at_death[patient_surv_df$age_at_death == "90 or Older"] <- "90"
+patient_surv_df$age_at_death <- as.numeric(patient_surv_df$age_at_death)
+patient_surv_df$age_at_onset <- as.numeric(patient_surv_df$age_at_onset)
+patient_surv_df$disease_duration <- as.numeric(patient_surv_df$disease_duration_in_months)
+
+```
+
+- Perform modelling of the disease duration survival function using gene expression
+
+```{r}
+
+als_surv_df <- patient_surv_df[!(patient_surv_df$condition %in% c("ctrl")),]
+als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+als_surv_df$status <- 0
+als_surv_df$status[als_surv_df$disease_duration <= 12 & !is.na(als_surv_df$disease_duration)] <- 1
+
+current_theme <- theme(
+    legend.position = "bottom",
+    text = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    plot.background = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(colour = "azure3",
+    linetype = "dashed",
+    size = 0.2))
+
+landmarks <- c(12,24,36)
+vars <- c("fus_expr", "kcnq2_expr", "sort1_expr", "neat1_expr",
+    "fus_6", "fus_7", "kcnq2_5", "neat1_long", "sort1_17b",
+    "fus_6_ratio", "fus_7_ratio", "kcnq2_5_ratio", "neat1_long_ratio",
+    "sort1_17b_ratio")
+
+# library(coxphf)
+# coxphf(Surv(disease_duration, status) ~ age_at_onset + sex_genotype + current_var, data=als_surv_df)
+
+
+
+all_disease_duration_output_df <- do.call(rbind, lapply(landmarks, function(x){
+    als_surv_df <- patient_surv_df[!(patient_surv_df$condition %in% c("ctrl")),]
+    als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+    als_surv_df$status <- 0
+    als_surv_df$status[als_surv_df$disease_duration <= x & !is.na(als_surv_df$disease_duration)] <- 1
+    significance_df <- do.call(rbind, lapply(vars, function(y){
+        message(y)
+        als_surv_df$current_var <- als_surv_df[,y]
+        duration_model_output <- lapply(unique(als_surv_df$tissue), function(z){
+            current_data_df <- als_surv_df[als_surv_df$tissue == z,]
+            current_data_df$current_var_scaled <- scale(current_data_df$current_var)
+            model <- coxph(Surv(disease_duration, status) ~ age_at_onset + sex_genotype + current_var_scaled, 
+                data = current_data_df, x=TRUE)
+            model
+        })
+        names(duration_model_output) <- unique(als_surv_df$tissue)
+        coefficients <- do.call(rbind, lapply(duration_model_output, function(x1){
+            summary(x1)$coefficients["current_var_scaled",]
+        }))
+        data.frame(landmark = x,
+            var = y, 
+            tissue = rownames(coefficients),
+            hr = coefficients[,2],
+            pval = coefficients[,5])
+    }))
+    return(significance_df[significance_df$pval < 0.05,])
+}))
+#                         landmark           var               tissue       hr
+# Cortex                        12      fus_expr               Cortex 1.623428
+# Cortex1                       12    kcnq2_expr               Cortex 1.744413
+# Cortex2                       12    sort1_expr               Cortex 1.525124
+# Spinal_Cord_Cervical11        12 kcnq2_5_ratio Spinal_Cord_Cervical 1.426376
+# Spinal_Cord_Thoracic9         24   fus_6_ratio Spinal_Cord_Thoracic 1.542426
+# Spinal_Cord_Thoracic10        24   fus_7_ratio Spinal_Cord_Thoracic 1.720765
+# Spinal_Cord_Cervical111       24 kcnq2_5_ratio Spinal_Cord_Cervical 1.422255
+# Spinal_Cord_Thoracic91        36   fus_6_ratio Spinal_Cord_Thoracic 1.484040
+# Spinal_Cord_Thoracic101       36   fus_7_ratio Spinal_Cord_Thoracic 1.512340
+# Spinal_Cord_Cervical112       36 kcnq2_5_ratio Spinal_Cord_Cervical 1.441904
+#                                 pval
+# Cortex                  0.0213453922
+# Cortex1                 0.0027926960
+# Cortex2                 0.0325221119
+# Spinal_Cord_Cervical11  0.0413048358
+# Spinal_Cord_Thoracic9   0.0402094095
+# Spinal_Cord_Thoracic10  0.0282570704
+# Spinal_Cord_Cervical111 0.0022817636
+# Spinal_Cord_Thoracic91  0.0149244742
+# Spinal_Cord_Thoracic101 0.0231822842
+# Spinal_Cord_Cervical112 0.0002823202
+
+require("ggbeeswarm")
+
+lapply(seq_len(nrow(all_disease_duration_output_df)), function(x){
+    current_df <- all_disease_duration_output_df[x,]
+    als_surv_df <- patient_surv_df[!(patient_surv_df$condition %in% c("ctrl")) & patient_surv_df$tissue == current_df$tissue,]
+    als_surv_df$sex_genotype <- factor(als_surv_df$sex_genotype, levels = c("XX", "XY"))
+    als_surv_df$status <- 0
+    als_surv_df$status[als_surv_df$disease_duration <= current_df$landmark & !is.na(als_surv_df$disease_duration)] <- 1
+    als_surv_df$current_var <- als_surv_df[,current_df$var]
+    als_surv_df$current_var_scaled <- scale(als_surv_df$current_var)
+
+    duration_model_output <- coxph(Surv(disease_duration, status) ~ age_at_onset + sex_genotype + current_var_scaled, 
+            data=als_surv_df, x=TRUE)
+
+    als_quantiles <- quantile(als_surv_df$current_var_scaled, c(0.1, 0.5, 0.90))
+
+    label_df <- data.frame(current_var_scaled = als_quantiles, group = factor(names(als_quantiles), levels = c("10%", "50%", "90%")))
+
+    Colours <- c("0" = "#F7EBE8", "1" = "#E54B4B")
+    ThePlot <- ggplot(als_surv_df, aes(x = as.character(status), y = current_var))
+    ThePlot <- ThePlot + geom_boxplot(aes(fill = as.character(status)), colour = "#000000", 
+        width = 0.5, lwd = 0.5, position = position_dodge(width = 0.9), outlier.shape = NA)
+    ThePlot <- ThePlot + geom_quasirandom(aes(fill = as.character(status)), shape = 21, colour = "#000000")
+    # ThePlot <- ThePlot + geom_vline(data = label_df, aes(xintercept = current_var_scaled, colour = group))
+    ThePlot <- ThePlot + scale_x_discrete("Status")
+    ThePlot <- ThePlot + scale_y_continuous(current_df$var)
+    ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = Colours)
+    # ThePlot <- ThePlot + scale_fill_manual("Condition colour", values = colours)
+    # ThePlot <- ThePlot + scale_fill_brewer("genotypes", palette = "Set1")
+    ThePlot <- ThePlot + theme_bw()
+    # ThePlot <- ThePlot + facet_grid(. ~ mnd_group)
+    ThePlot <- ThePlot + current_theme
+
+    the_plot <- plot_surv_lines(time = "disease_duration",
+        status = "status",
+        variable = "current_var_scaled",
+        data = als_surv_df,
+        model = duration_model_output,
+        cif = F,
+        custom_color = RColorBrewer::brewer.pal(n = 5, name = "Reds"),
+        horizon=als_quantiles,
+        max_t = current_df$landmark-1) + theme(legend.position = "none") + ggtitle(current_df$var)
+
+
+    all_plots <- ThePlot | the_plot
+
+    ggsave(width = 10, height = 5, file = file.path(plot_dir, paste("02-02",current_df$landmark,"month-disease-duration-vs",current_df$var, current_df$tissue,".pdf", sep = "-")), all_plots)
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+- Plot results 
+
+
+```{r}
+
+
+
+# colours <- c("healthy" = "#F6F4F3", "als" = "#F87575", "als+ftd" = "#FFA9A3")
+
+
+
+all_plots <- wrap_plots(fus_plot_list, nrow = 1, ncol = 6) / wrap_plots(fus_threshold_plot_list, nrow = 1, ncol = 6) 
+
+ggsave(width = 15, height = 7, file = file.path(plot_dir, paste("02-02","disease-duration-vs-agpat4-expression.pdf", sep = "-")), all_plots)
+
+
+```
+
+
+
+
