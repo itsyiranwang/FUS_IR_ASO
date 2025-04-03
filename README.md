@@ -8,8 +8,8 @@ Code and data relative to:
 
 **Data Sets:**
 
-1. TDP-43 iiCLIP:  [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
-2. Riboseq: 
+1. TDP-43 iiCLIP: [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
+2. Riboseq: [riboseq](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/riboseq)
 3. ALS progression:  [postmortem-analysis](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis)
 
 
