@@ -6,14 +6,7 @@ Code and data relative to:
 
  Y.Wang et al. 2025
 
-
-**Project summary/abstract:**
-
-Amyotrophic lateral sclerosis (ALS) is a devastating condition characterised by the progressive degeneration of motor neurons. Evidence suggests that aberrant RNA splicing, including intron retention (IR), is a common feature across ALS models and may contribute to pathogenesis. We previously identified an abundantly elevated IR event in FUS across diverse ALS gene mutations. Here, we reveal that increasing aberrant FUS IR by a splice-modifying antisense oligonucleotide (ASO) is sufficient to disturb cellular homeostasis in both healthy and ALS-VCP mutant human induced pluripotent stem cell (hiPSC)-derived motor neurons, including oxidative stress, mitochondrial dysfunction, lysosomal dysfunction, and apoptosis. Moreover, FUS intron-retaining transgene expression in healthy mice recapitulates key ALS features, including motor deficits and lifespan reduction. In contrast, reducing aberrant FUS IR by downregulating whole FUS transcripts using ASO approaches, including Jacifusen/Ulefnersen, mitigates cellular defects in ALS-VCP mutant motor neurons. Finally, we identify TDP-43 as the most enriched FUS IR-binding protein and show that increased FUS IR disrupts TDP-43 function, leading to RNA missplicing in motor neurons. This is the first demonstration that aberrant IR plays a pathogenic role in neurodegeneration and provides a potential therapeutic opportunity in targeting FUS for forms of ALS beyond those caused by FUS mutations.
-
-
 **Data Sets:**
-
 
 1. TDP-43 iiCLIP:  [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
 2. Riboseq:
