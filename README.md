@@ -30,7 +30,7 @@ De-multiplexed fastq:
 
 TDP-43 iCLIP data were processed and analysed using the **nf-core-clipseq pipeline** _v1.0.0_.(https://nf-co.re/clipseq/1.0.0/) 
 - sample sheet provided to nfcore-clipseq pipeline: [mn_sample_sheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/tdp43_clip/nfcore_clipseq/mn_sample_sheet.csv)    
-- script to run nfcore-clipseq pipeline: [run.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/run.sh
+- script to run nfcore-clipseq pipeline: [run.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/run.sh)
 
 Clipplot-viz: (CHECK WITH NOBBY IF CODE ALREADY PUBLIC )
 samplesheet.csv: sample sheet provided to run clip-viz
