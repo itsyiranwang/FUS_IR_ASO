@@ -10,7 +10,7 @@ Code and data relative to:
 
 1. TDP-43 iiCLIP: [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
 2. Riboseq: [riboseq](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/riboseq)
-3. ALS progression:  [postmortem-analysis](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis)
+3. NYGC-ALS consortium data - ALS progresison:  [postmortem-analysis](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis)
 
 
 **GEO Accession**:   
@@ -41,5 +41,5 @@ _See relative study accession codes to access previously published TDP-43 iCLIP 
 - riboseq pipeline script: [riboseq_HEK_pipeline.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/riboseq/riboseq_HEK_pipeline.sh)  
 
 **ALS progression:** 
-- Postmortem analysis input: [fus_7_ratio_thoracic.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/postmortem-analysis/input_files/fus_7_ratio_thoracic.csv)  
-- Postmortem analysis scripts: [scripts](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis/scripts)  
+- NYGC-ALS consortium postmortem data analysis input: [fus_7_ratio_thoracic.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/postmortem-analysis/input_files/fus_7_ratio_thoracic.csv)  
+- NYGC-ALS consortium postmortem data analysis scripts: [scripts](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis/scripts)  
