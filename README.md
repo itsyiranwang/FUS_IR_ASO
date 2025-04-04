@@ -14,7 +14,7 @@ Code and data relative to:
 
 
 **GEO Accession**:   
-GEO Accession to raw (fastq) and processed (bigwig) data used in the study is under review.
+Raw (fastq) and processed (bigwig) data used in the study are available through the GEO accession records GSE293827 and GSE293828.
 
 
 **TDP-43 iCLIP**: 
