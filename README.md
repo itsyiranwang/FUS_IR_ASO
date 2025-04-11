@@ -36,6 +36,10 @@ TDP-43 iCLIP data were processed and analysed using the [nf-core-clipseq pipelin
 
 _See relative study accession codes to access previously published TDP-43 iCLIP data (fastq files)._ 
 
+**ENCODE eCLIP:** 
+- ENCODE input: [fe_clip_IR.RData](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/encode_eclip/input_files/fe_clip_IR.RData)  
+- ENCODE analysis script: [FUS_analysis.R](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/encode_eclip/script/FUS_analysis.R)  
+
 **Riboseq:** 
 - riboseq input: [riboseq_HEK_samplesheet.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/riboseq/riboseq_HEK_samplesheet.csv)  
 - riboseq pipeline script: [riboseq_HEK_pipeline.sh](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/riboseq/riboseq_HEK_pipeline.sh)  
