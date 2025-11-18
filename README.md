@@ -47,5 +47,5 @@ _See relative study accession codes to access previously published TDP-43 iCLIP 
 - NYGC-ALS consortium postmortem data analysis input: [fus_7_ratio_thoracic.csv](https://github.com/itsyiranwang/FUS_IR_ASO/blob/main/postmortem-analysis/input_files/fus_7_ratio_thoracic.csv)  
 - NYGC-ALS consortium postmortem data analysis scripts: [scripts](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis/scripts)
 
-**FUS IR in public ALS datasets**
+**FUS IR in public ALS datasets**  
 -scripts to process and quantify FUS exonic and intronic read coverage across public ALS datasets (Answer ALS & NeuroLincs): [scripts](public_data)
