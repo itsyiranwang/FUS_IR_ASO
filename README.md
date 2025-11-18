@@ -11,6 +11,7 @@ Code and data relative to:
 1. TDP-43 iiCLIP: [tdp43_clip](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/tdp43_clip)    
 2. Riboseq: [riboseq](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/riboseq)
 3. NYGC-ALS consortium data - ALS progresison:  [postmortem-analysis](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/postmortem-analysis)
+4. NeuroLINCS and Answer ALS data - FUS IR ratio: [public_data](https://github.com/itsyiranwang/FUS_IR_ASO/tree/main/public_data)
 
 
 **GEO Accession**:   
